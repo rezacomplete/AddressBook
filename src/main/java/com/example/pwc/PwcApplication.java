@@ -10,10 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.Console;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 @SpringBootApplication
 public class PwcApplication implements CommandLineRunner {
@@ -148,6 +145,8 @@ public class PwcApplication implements CommandLineRunner {
 	private void printPersonList(AddressBook addressBook) {
 		System.out.println("***************************************");
 		System.out.println("Address book: " + addressBook.getName());
+
+		addressBook.getPersonList().sort(Comparator.comparing(Person::getName));
 
 		for (Person person : addressBook.getPersonList()) {
 			System.out.println("-" + person.getName() + "\t" + person.getNumber());
