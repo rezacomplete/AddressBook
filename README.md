@@ -174,3 +174,16 @@ Example response (200 OK):
 ./mvnw test
 ```
 
+## Deployment (Docker-only)
+
+Build the Docker image:
+
+```bash
+docker build -t addressbook:local .
+```
+
+Run the image:
+
+```bash
+docker run --rm -p 8080:8080 addressbook:local
+```

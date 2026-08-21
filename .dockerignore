@@ -1,0 +1,20 @@
+# Ignore build outputs
+target/
+
+# VCS and IDE
+.git
+.gitignore
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# Keep mvnw and .mvn so the builder can use the Maven wrapper
+# (do not add mvnw or .mvn to this file)
