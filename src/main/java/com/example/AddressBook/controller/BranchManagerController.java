@@ -55,6 +55,13 @@ public class BranchManagerController {
         return ResponseEntity.ok(list);
     }
 
+
+    @DeleteMapping("/address-books/{addressBookName}/contacts/{id}")
+    public ResponseEntity<Void> deleteContactById(@PathVariable String addressBookName, @PathVariable Long id) {
+        contactService.deleteContactById(addressBookName, id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/address-books/{addressBookName}/contacts")
     public ResponseEntity<List<ContactResponse>> listContacts(@PathVariable String addressBookName) {
         List<ContactResponse> list = contactService.listContacts(addressBookName);

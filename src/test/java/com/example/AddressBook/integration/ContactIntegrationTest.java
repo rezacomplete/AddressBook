@@ -1,15 +1,14 @@
 package com.example.AddressBook.integration;
 
-import com.example.AddressBook.dto.ContactRequest;
+import com.example.AddressBook.dto.AddressBookResponse;
 import com.example.AddressBook.dto.ContactResponse;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,41 +18,43 @@ public class ContactIntegrationTest {
     @LocalServerPort
     private int port;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    //@Test
-    void createAndListAndUnique_andDelete() {
+    @Test
+    void createAddressBookAndAddContactAndListContactsAndRemoveContactAndRemoveAddressBook() {
         String base = "http://localhost:" + port + "/api";
+        RestTemplate restTemplate = new RestTemplate();
 
-        ContactRequest r1 = new ContactRequest();
-        r1.setName("Alice"); r1.setPhone("+111");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<ContactResponse> resp = restTemplate.postForEntity(base + "/address-books/book1/contacts", r1, ContactResponse.class);
-        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        ContactResponse created = resp.getBody();
-        assertThat(created).isNotNull();
-        assertThat(created.getName()).isEqualTo("Alice");
+        // 1) create address book
+        Map<String, String> abReq = Map.of("name", "IntegrationBook");
+        HttpEntity<Map<String, String>> abEntity = new HttpEntity<>(abReq, headers);
+        ResponseEntity<AddressBookResponse> abResp = restTemplate.postForEntity(base + "/address-books", abEntity, AddressBookResponse.class);
+        assertThat(abResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(abResp.getBody()).isNotNull();
+        assertThat(abResp.getBody().getName()).isEqualTo("IntegrationBook");
 
-        // add same contact to another book
-        ContactRequest r2 = new ContactRequest(); r2.setName("Alice"); r2.setPhone("+111");
-        ResponseEntity<ContactResponse> resp2 = restTemplate.postForEntity(base + "/address-books/book2/contacts", r2, ContactResponse.class);
-        assertThat(resp2.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        // 2) add contact
+        Map<String, String> contactReq = Map.of("name", "Alice", "phone", "+1234567890");
+        HttpEntity<Map<String, String>> contactEntity = new HttpEntity<>(contactReq, headers);
+        ResponseEntity<ContactResponse> contactResp = restTemplate.postForEntity(base + "/address-books/IntegrationBook/contacts", contactEntity, ContactResponse.class);
+        assertThat(contactResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(contactResp.getBody()).isNotNull();
+        Long contactId = contactResp.getBody().getId();
+        assertThat(contactId).isNotNull();
 
-        // list book1
-        ResponseEntity<ContactResponse[]> listResp = restTemplate.getForEntity(base + "/address-books/book1/contacts", ContactResponse[].class);
+        // 3) list contacts
+        ResponseEntity<ContactResponse[]> listResp = restTemplate.getForEntity(base + "/address-books/IntegrationBook/contacts", ContactResponse[].class);
         assertThat(listResp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(listResp.getBody()).isNotNull();
         assertThat(listResp.getBody()).hasSize(1);
 
-        // unique across books should return single unique
-        ResponseEntity<ContactResponse[]> uniqueResp = restTemplate.getForEntity(base + "/contacts/unique", ContactResponse[].class);
-        assertThat(uniqueResp.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(uniqueResp.getBody()).hasSize(1);
+        // 4) delete contact
+        ResponseEntity<Void> delContactResp = restTemplate.exchange(base + "/address-books/IntegrationBook/contacts/" + contactId, HttpMethod.DELETE, null, Void.class);
+        assertThat(delContactResp.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        // delete by id from book1
-        restTemplate.delete(base + "/address-books/book1/contacts/" + created.getId());
-
-        ResponseEntity<ContactResponse[]> listAfterDelete = restTemplate.getForEntity(base + "/address-books/book1/contacts", ContactResponse[].class);
-        assertThat(listAfterDelete.getBody()).isEmpty();
+        // 5) delete address book
+        ResponseEntity<Void> delAbResp = restTemplate.exchange(base + "/address-books/IntegrationBook", HttpMethod.DELETE, null, Void.class);
+        assertThat(delAbResp.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 }

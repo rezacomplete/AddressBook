@@ -45,6 +45,8 @@ public class ContactServiceImpl implements ContactService {
         Contact contact = new Contact(request.getName(), request.getPhone());
         book.addContact(contact);
         addressBookRepository.save(book);
+        // ensure pending inserts are flushed so the following query can find the persisted contact and its generated id
+        contactRepository.flush();
 
         // query the persisted contact by address book, name and phone to obtain the generated id
         Contact saved = contactRepository.findByAddressBook_NameAndNameAndPhone(addressBookName, request.getName(), request.getPhone())
