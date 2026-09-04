@@ -10,7 +10,10 @@ import com.example.AddressBook.repository.UniqueContactProjection;
 import com.example.AddressBook.service.impl.ContactServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,22 +96,6 @@ public class ContactServiceTest {
     }
 
     @Test
-    void testListContacts() {
-        String addressBookName = "Friends";
-
-        Contact contact1 = new Contact("John Doe", "1234567890");
-        Contact contact2 = new Contact("Jane Smith", "0987654321");
-
-        when(contactRepository.findByAddressBook_Name(addressBookName)).thenReturn(java.util.List.of(contact1, contact2));
-
-        java.util.List<ContactResponse> result = service.listContacts(addressBookName, 0, 10);
-
-        assertThat(result).hasSize(2);
-        assertThat(result.get(0).getName()).isEqualTo("John Doe");
-        assertThat(result.get(1).getName()).isEqualTo("Jane Smith");
-    }
-
-    @Test
     void testListUniqueContacts() {
         Contact contact1 = new Contact("John Doe", "1234567890");
         Contact contact2 = new Contact("Jane Smith", "0987654321");
@@ -137,13 +124,14 @@ public class ContactServiceTest {
             }
         };
 
-        when(contactRepository.findUniqueContacts()).thenReturn(java.util.List.of(projection1, projection2));
+        when(contactRepository.findUniqueContacts(isA(Pageable.class))).thenReturn(new org.springframework.data.domain.PageImpl<>(java.util.List.of(projection1, projection2)));
 
-        java.util.List<ContactResponse> result = service.listUniqueContacts();
+        Page<ContactResponse> result = service.listUniqueContacts(1, 10);
+        List<ContactResponse> content = result.getContent();
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getName()).isEqualTo("John Doe");
-        assertThat(result.get(1).getName()).isEqualTo("Jane Smith");
+        assertThat(content.getFirst().getName()).isEqualTo("John Doe");
+        assertThat(content.get(1).getName()).isEqualTo("Jane Smith");
     }
 
     @Test

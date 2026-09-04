@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface ContactRepository extends JpaRepository<Contact, Long> {
-    List<Contact> findByAddressBook_Name(String addressBookName);
     Optional<Contact> findByIdAndAddressBook_Name(Long id, String addressBookName);
     Optional<Contact> findByAddressBook_NameAndNameAndPhone(String addressBookName, String name, String phone);
     Page<Contact> findByAddressBookName(String addressBookName, Pageable pageable);

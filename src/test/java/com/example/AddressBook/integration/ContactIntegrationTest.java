@@ -39,19 +39,23 @@ public class ContactIntegrationTest {
         Map<String, String> contactReq = Map.of("name", "Alice", "phone", "+1234567890");
         HttpEntity<Map<String, String>> contactEntity = new HttpEntity<>(contactReq, headers);
         ResponseEntity<ContactResponseWithId> contactResp = restTemplate.postForEntity(base + "/address-books/IntegrationBook/contacts", contactEntity, ContactResponseWithId.class);
+
         assertThat(contactResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(contactResp.getBody()).isNotNull();
-        Long contactId = contactResp.getBody().getId();
-        assertThat(contactId).isNotNull();
+
+        Long contactId1 = contactResp.getBody().getId();
+        assertThat(contactId1).isNotNull();
 
         // 2) add another contact
         contactReq = Map.of("name", "Reza", "phone", "0422032600");
         contactEntity = new HttpEntity<>(contactReq, headers);
         contactResp = restTemplate.postForEntity(base + "/address-books/IntegrationBook/contacts", contactEntity, ContactResponseWithId.class);
+
         assertThat(contactResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(contactResp.getBody()).isNotNull();
-        contactId = contactResp.getBody().getId();
-        assertThat(contactId).isNotNull();
+
+        Long contactId2 = contactResp.getBody().getId();
+        assertThat(contactId2).isNotNull();
 
         // 3) list contacts
         ResponseEntity<ContactResponse[]> listResp = restTemplate.getForEntity(base + "/address-books/IntegrationBook/contacts?page=1&size=1", ContactResponse[].class);
@@ -60,7 +64,10 @@ public class ContactIntegrationTest {
         assertThat(listResp.getBody()).hasSize(1);
 
         // 4) delete contact
-        ResponseEntity<Void> delContactResp = restTemplate.exchange(base + "/address-books/IntegrationBook/contacts/" + contactId, HttpMethod.DELETE, null, Void.class);
+        ResponseEntity<Void> delContactResp = restTemplate.exchange(base + "/address-books/IntegrationBook/contacts/" + contactId1, HttpMethod.DELETE, null, Void.class);
+        assertThat(delContactResp.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        delContactResp = restTemplate.exchange(base + "/address-books/IntegrationBook/contacts/" + contactId2, HttpMethod.DELETE, null, Void.class);
         assertThat(delContactResp.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
         // 5) delete address book

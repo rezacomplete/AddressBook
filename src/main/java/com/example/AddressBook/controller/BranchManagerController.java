@@ -3,6 +3,7 @@ package com.example.AddressBook.controller;
 import com.example.AddressBook.dto.*;
 import com.example.AddressBook.service.ContactService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -66,8 +67,8 @@ public class BranchManagerController {
     }
 
     @GetMapping("/contacts/unique")
-    public ResponseEntity<List<ContactResponse>> listUniqueContacts() {
-        List<ContactResponse> uniques = contactService.listUniqueContacts();
+    public ResponseEntity<Page<ContactResponse>> listUniqueContacts(@RequestParam int page, @RequestParam int size) {
+        Page<ContactResponse> uniques = contactService.listUniqueContacts(page, size);
         return ResponseEntity.ok(uniques);
     }
 }

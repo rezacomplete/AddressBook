@@ -12,6 +12,7 @@ import com.example.AddressBook.repository.AddressBookRepository;
 import com.example.AddressBook.repository.ContactRepository;
 import com.example.AddressBook.repository.UniqueContactProjection;
 import com.example.AddressBook.service.ContactService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -107,13 +108,6 @@ public class ContactServiceImpl implements ContactService {
         return addressBookRepository.findAll().stream().map(AddressBook::getName).collect(Collectors.toList());
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ContactResponse> listUniqueContacts() {
-        List<UniqueContactProjection> uniques = contactRepository.findUniqueContacts();
-        return uniques.stream().map(p -> new ContactResponse(p.getName(), p.getPhone())).collect(Collectors.toList());
-    }
-
     // streaming call - keep transaction open while consuming the stream
     @Transactional(readOnly = true)
     public List<ContactResponse> streamUniqueContactsAsList() {
@@ -124,4 +118,10 @@ public class ContactServiceImpl implements ContactService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public Page<ContactResponse> listUniqueContacts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UniqueContactProjection> uniques = contactRepository.findUniqueContacts(pageable); // calls Page<...>
+        return uniques.map(p -> new ContactResponse(p.getName(), p.getPhone()));
+    }
 }

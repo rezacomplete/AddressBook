@@ -15,7 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ContactRepositoryPerformanceTest {
 
     @Autowired
@@ -38,11 +38,6 @@ class ContactRepositoryPerformanceTest {
     @Test
     @Transactional
     void measureFindUniqueContactsPerformance() {
-        // Prepare schema rows quickly via JDBC batch insert.
-        // Table names and columns below assume typical JPA naming; adapt if different.
-//        jdbc.execute("CREATE TABLE IF NOT EXISTS address_book (id BIGINT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255));");
-//        jdbc.execute("CREATE TABLE IF NOT EXISTS contact (id BIGINT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), phone VARCHAR(255), address_book_id BIGINT, FOREIGN KEY (address_book_id) REFERENCES address_book(id));");
-
         // insert address books
         for (int i = 1; i <= ADDRESS_BOOK_COUNT; i++) {
             jdbc.update("INSERT INTO address_book (name) VALUES (?)", "book-" + i);
