@@ -101,7 +101,7 @@ public class ContactServiceTest {
 
         when(contactRepository.findByAddressBook_Name(addressBookName)).thenReturn(java.util.List.of(contact1, contact2));
 
-        java.util.List<ContactResponse> result = service.listContacts(addressBookName);
+        java.util.List<ContactResponse> result = service.listContacts(addressBookName, 0, 10);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getName()).isEqualTo("John Doe");

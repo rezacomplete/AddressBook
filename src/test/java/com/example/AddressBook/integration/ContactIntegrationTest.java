@@ -2,6 +2,7 @@ package com.example.AddressBook.integration;
 
 import com.example.AddressBook.dto.AddressBookResponse;
 import com.example.AddressBook.dto.ContactResponse;
+import com.example.AddressBook.dto.ContactResponseWithId;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -37,14 +38,23 @@ public class ContactIntegrationTest {
         // 2) add contact
         Map<String, String> contactReq = Map.of("name", "Alice", "phone", "+1234567890");
         HttpEntity<Map<String, String>> contactEntity = new HttpEntity<>(contactReq, headers);
-        ResponseEntity<ContactResponse> contactResp = restTemplate.postForEntity(base + "/address-books/IntegrationBook/contacts", contactEntity, ContactResponse.class);
+        ResponseEntity<ContactResponseWithId> contactResp = restTemplate.postForEntity(base + "/address-books/IntegrationBook/contacts", contactEntity, ContactResponseWithId.class);
         assertThat(contactResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(contactResp.getBody()).isNotNull();
         Long contactId = contactResp.getBody().getId();
         assertThat(contactId).isNotNull();
 
+        // 2) add another contact
+        contactReq = Map.of("name", "Reza", "phone", "0422032600");
+        contactEntity = new HttpEntity<>(contactReq, headers);
+        contactResp = restTemplate.postForEntity(base + "/address-books/IntegrationBook/contacts", contactEntity, ContactResponseWithId.class);
+        assertThat(contactResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(contactResp.getBody()).isNotNull();
+        contactId = contactResp.getBody().getId();
+        assertThat(contactId).isNotNull();
+
         // 3) list contacts
-        ResponseEntity<ContactResponse[]> listResp = restTemplate.getForEntity(base + "/address-books/IntegrationBook/contacts", ContactResponse[].class);
+        ResponseEntity<ContactResponse[]> listResp = restTemplate.getForEntity(base + "/address-books/IntegrationBook/contacts?page=1&size=1", ContactResponse[].class);
         assertThat(listResp.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(listResp.getBody()).isNotNull();
         assertThat(listResp.getBody()).hasSize(1);

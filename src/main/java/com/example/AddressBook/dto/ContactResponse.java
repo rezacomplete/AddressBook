@@ -1,27 +1,15 @@
 package com.example.AddressBook.dto;
 
 public class ContactResponse {
-    private Long id;
     private String name;
     private String phone;
-    private String addressBookName;
 
     public ContactResponse() {
     }
 
-    public ContactResponse(Long id, String name, String phone, String addressBookName) {
-        this.id = id;
+    public ContactResponse(String name, String phone) {
         this.name = name;
         this.phone = phone;
-        this.addressBookName = addressBookName;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -40,11 +28,4 @@ public class ContactResponse {
         this.phone = phone;
     }
 
-    public String getAddressBookName() {
-        return addressBookName;
-    }
-
-    public void setAddressBookName(String addressBookName) {
-        this.addressBookName = addressBookName;
-    }
 }

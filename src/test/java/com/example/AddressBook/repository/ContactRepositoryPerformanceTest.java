@@ -1,0 +1,91 @@
+// java
+package com.example.AddressBook.repository;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@SpringBootTest
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+class ContactRepositoryPerformanceTest {
+
+    @Autowired
+    ContactRepository contactRepository;
+
+    @Autowired
+    JdbcTemplate jdbc;
+
+    // adjust sizes to your machine
+    private static final int ADDRESS_BOOK_COUNT = 5;
+    private static final int CONTACTS_PER_BOOK = 200_000; // total ~100k
+    private static final int WARMUP_RUNS = 2;
+    private static final int MEASURE_RUNS = 5;
+
+    @BeforeAll
+    static void beforeAll() {
+        // intentionally left blank; keep for possible global setup
+    }
+
+    @Test
+    @Transactional
+    void measureFindUniqueContactsPerformance() {
+        // Prepare schema rows quickly via JDBC batch insert.
+        // Table names and columns below assume typical JPA naming; adapt if different.
+//        jdbc.execute("CREATE TABLE IF NOT EXISTS address_book (id BIGINT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255));");
+//        jdbc.execute("CREATE TABLE IF NOT EXISTS contact (id BIGINT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), phone VARCHAR(255), address_book_id BIGINT, FOREIGN KEY (address_book_id) REFERENCES address_book(id));");
+
+        // insert address books
+        for (int i = 1; i <= ADDRESS_BOOK_COUNT; i++) {
+            jdbc.update("INSERT INTO address_book (name) VALUES (?)", "book-" + i);
+        }
+
+        // insert many contacts; create duplicates across address books to exercise the GROUP BY projection
+        List<Object[]> batch = new ArrayList<>(ADDRESS_BOOK_COUNT * CONTACTS_PER_BOOK);
+        for (int bookId = 1; bookId <= ADDRESS_BOOK_COUNT; bookId++) {
+            for (int c = 0; c < CONTACTS_PER_BOOK; c++) {
+                // create many duplicate names/phones across books by modding
+                String name = "name-" + (c % 1000);
+                String phone = "phone-" + (c % 500);
+                batch.add(new Object[]{name, phone, bookId});
+                if (batch.size() >= 2000) {
+                    jdbc.batchUpdate("INSERT INTO contact (name, phone, address_book_id) VALUES (?, ?, ?)", batch);
+                    batch.clear();
+                }
+            }
+        }
+        if (!batch.isEmpty()) jdbc.batchUpdate("INSERT INTO contact (name, phone, address_book_id) VALUES (?, ?, ?)", batch);
+
+        // Warm up - allow JPA/Hibernate to initialize caches and query plan
+        for (int i = 0; i < WARMUP_RUNS; i++) {
+            contactRepository.findUniqueContacts();
+        }
+
+        // Measure several runs and capture timings
+        long totalNanos = 0;
+        long fastest = Long.MAX_VALUE;
+        for (int i = 0; i < MEASURE_RUNS; i++) {
+            long start = System.nanoTime();
+            contactRepository.findUniqueContacts();
+            long elapsed = System.nanoTime() - start;
+            totalNanos += elapsed;
+            fastest = Math.min(fastest, elapsed);
+            System.out.println("Run " + (i + 1) + " elapsed ms: " + (elapsed / 1_000_000));
+        }
+
+        long avgMs = (totalNanos / MEASURE_RUNS) / 1_000_000;
+        long fastestMs = fastest / 1_000_000;
+        System.out.println("Average ms: " + avgMs + ", fastest ms: " + fastestMs);
+
+        // example assertion to fail test if too slow (tweak threshold to your expectations)
+        assertTrue(avgMs < 2000, "Average query time is too slow: " + avgMs + "ms");
+    }
+}

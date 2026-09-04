@@ -1,9 +1,6 @@
 package com.example.AddressBook.controller;
 
-import com.example.AddressBook.dto.AddressBookRequest;
-import com.example.AddressBook.dto.AddressBookResponse;
-import com.example.AddressBook.dto.ContactRequest;
-import com.example.AddressBook.dto.ContactResponse;
+import com.example.AddressBook.dto.*;
 import com.example.AddressBook.service.ContactService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +24,10 @@ public class BranchManagerController {
      *  Add new contact entries in the specified address book.
      */
     @PostMapping("/address-books/{addressBookName}/contacts")
-    public ResponseEntity<ContactResponse> createContact(@PathVariable String addressBookName,
+    public ResponseEntity<ContactResponseWithId> createContact(@PathVariable String addressBookName,
                                                          @Valid @RequestBody ContactRequest request,
                                                          UriComponentsBuilder uriBuilder) {
-        ContactResponse created = contactService.createContact(addressBookName, request);
+        ContactResponseWithId created = contactService.createContact(addressBookName, request);
         URI location = uriBuilder.path("/api/address-books/{addressBookName}/contacts/{id}")
                 .buildAndExpand(addressBookName, created.getId()).toUri();
         return ResponseEntity.created(location).body(created);
@@ -63,8 +60,8 @@ public class BranchManagerController {
     }
 
     @GetMapping("/address-books/{addressBookName}/contacts")
-    public ResponseEntity<List<ContactResponse>> listContacts(@PathVariable String addressBookName) {
-        List<ContactResponse> list = contactService.listContacts(addressBookName);
+    public ResponseEntity<List<ContactResponse>> listContacts(@PathVariable String addressBookName, @RequestParam int page, @RequestParam int size) {
+        List<ContactResponse> list = contactService.listContacts(addressBookName, page, size);
         return ResponseEntity.ok(list);
     }
 

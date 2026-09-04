@@ -3,6 +3,7 @@ package com.example.AddressBook.service.impl;
 import com.example.AddressBook.dto.ContactRequest;
 import com.example.AddressBook.dto.ContactResponse;
 import com.example.AddressBook.dto.AddressBookResponse;
+import com.example.AddressBook.dto.ContactResponseWithId;
 import com.example.AddressBook.exception.DuplicateContactException;
 import com.example.AddressBook.exception.NotFoundException;
 import com.example.AddressBook.model.AddressBook;
@@ -11,11 +12,14 @@ import com.example.AddressBook.repository.AddressBookRepository;
 import com.example.AddressBook.repository.ContactRepository;
 import com.example.AddressBook.repository.UniqueContactProjection;
 import com.example.AddressBook.service.ContactService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ContactServiceImpl implements ContactService {
@@ -30,7 +34,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     @Transactional
-    public ContactResponse createContact(String addressBookName, ContactRequest request) {
+    public ContactResponseWithId createContact(String addressBookName, ContactRequest request) {
         AddressBook book = addressBookRepository.findByName(addressBookName)
                 .orElseGet(() -> addressBookRepository.save(new AddressBook(addressBookName)));
 
@@ -52,14 +56,16 @@ public class ContactServiceImpl implements ContactService {
         Contact saved = contactRepository.findByAddressBook_NameAndNameAndPhone(addressBookName, request.getName(), request.getPhone())
                 .orElse(contact);
 
-        return toResponse(saved);
+        return new ContactResponseWithId(saved.getId(), saved.getName(), saved.getPhone());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ContactResponse> listContacts(String addressBookName) {
-        return contactRepository.findByAddressBook_Name(addressBookName).stream()
-                .map(this::toResponse)
+    public List<ContactResponse> listContacts(String addressBookName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return contactRepository.findByAddressBookName(addressBookName, pageable).stream()
+                .map(p -> new ContactResponse(p.getName(), p.getPhone()))
                 .collect(Collectors.toList());
     }
 
@@ -105,12 +111,17 @@ public class ContactServiceImpl implements ContactService {
     @Transactional(readOnly = true)
     public List<ContactResponse> listUniqueContacts() {
         List<UniqueContactProjection> uniques = contactRepository.findUniqueContacts();
-        return uniques.stream().map(p -> new ContactResponse(null, p.getName(), p.getPhone(), null)).collect(Collectors.toList());
+        return uniques.stream().map(p -> new ContactResponse(p.getName(), p.getPhone())).collect(Collectors.toList());
     }
 
-    private ContactResponse toResponse(Contact contact) {
-        String bookName = contact.getAddressBook() != null ? contact.getAddressBook().getName() : null;
-        return new ContactResponse(contact.getId(), contact.getName(), contact.getPhone(), bookName);
+    // streaming call - keep transaction open while consuming the stream
+    @Transactional(readOnly = true)
+    public List<ContactResponse> streamUniqueContactsAsList() {
+        try (Stream<UniqueContactProjection> stream = contactRepository.streamUniqueContacts()) {
+            return stream
+                    .map(r -> new ContactResponse(r.getName(), r.getPhone()))
+                    .collect(Collectors.toList());
+        }
     }
 
 }

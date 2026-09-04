@@ -3,7 +3,12 @@ package com.example.AddressBook.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "contact", indexes = {@Index(columnList = "name", name = "idx_contact_name"), @Index(columnList = "phone", name = "idx_contact_phone")})
+//@Table(name = "contact", indexes = {@Index(columnList = "name", name = "idx_contact_name"), @Index(columnList = "phone", name = "idx_contact_phone")})
+@Table(name = "contact", indexes = {
+//        @Index(name = "idx_contact_name", columnList = "name"),
+//        @Index(name = "idx_contact_phone", columnList = "phone"),
+        @Index(name = "idx_contact_name_phone", columnList = "name, phone")
+})
 public class Contact {
 
     @Id
