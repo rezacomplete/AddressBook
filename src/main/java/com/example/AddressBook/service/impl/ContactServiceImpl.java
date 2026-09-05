@@ -40,7 +40,7 @@ public class ContactServiceImpl implements ContactService {
         AddressBook addressBook = addressBookRepository.findByName(addressBookName)
                 .orElseGet(() -> addressBookRepository.save(new AddressBook(addressBookName)));
 
-        // check for duplicate contact in the same address book. This is to provide a user friendly error message instead of relying on the database unique constraint violation
+        // check for duplicate contact in the same address book. This is to provide a user-friendly error message instead of relying on the database unique constraint violation
         boolean duplicate =
                 contactRepository.existsByAddressBook_NameAndNameAndPhone(
                         addressBookName,
