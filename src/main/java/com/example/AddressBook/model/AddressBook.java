@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "address_book", indexes = {@Index(columnList = "name", name = "idx_addressbook_name")})
+@Table(
+        name = "address_book",
+        indexes = {@Index(columnList = "name", name = "idx_addressbook_name")},
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
 public class AddressBook {
 
     @Id

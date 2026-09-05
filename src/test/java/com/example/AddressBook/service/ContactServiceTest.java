@@ -45,8 +45,6 @@ public class ContactServiceTest {
 
         AddressBook addressBook = new AddressBook(addressBookName);
         when(addressBookRepository.findByName(addressBookName)).thenReturn(Optional.of(addressBook));
-        when(contactRepository.findByAddressBook_NameAndNameAndPhone(addressBookName, request.getName(), request.getPhone()))
-                .thenReturn(Optional.of(contact));
 
         ContactResponse result = service.createContact(addressBookName, request);
 
@@ -68,6 +66,8 @@ public class ContactServiceTest {
         addressBook.addContact(contact);
 
         when(addressBookRepository.findByName(addressBookName)).thenReturn(Optional.of(addressBook));
+        when(contactRepository.existsByAddressBook_NameAndNameAndPhone(addressBookName, request.getName(), request.getPhone()))
+                .thenReturn(true);
 
         assertThrows(RuntimeException.class, () -> service.createContact(addressBookName, request));
     }

@@ -15,10 +15,10 @@ import java.util.stream.Stream;
 
 public interface ContactRepository extends JpaRepository<Contact, Long> {
     Optional<Contact> findByIdAndAddressBook_Name(Long id, String addressBookName);
-    Optional<Contact> findByAddressBook_NameAndNameAndPhone(String addressBookName, String name, String phone);
     Page<Contact> findByAddressBookName(String addressBookName, Pageable pageable);
+    boolean existsByAddressBook_NameAndNameAndPhone(String addressBookName, String name, String phone);
 
-    @Query("SELECT c.name as name, c.phone as phone FROM Contact c GROUP BY c.name, c.phone")
+    @Query("SELECT DISTINCT c.name as name, c.phone as phone FROM Contact c")
     List<UniqueContactProjection> findUniqueContacts();
 
     // page through unique (name, phone) pairs efficiently

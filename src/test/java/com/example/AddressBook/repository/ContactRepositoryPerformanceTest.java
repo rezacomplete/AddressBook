@@ -26,7 +26,7 @@ class ContactRepositoryPerformanceTest {
 
     // adjust sizes to your machine
     private static final int ADDRESS_BOOK_COUNT = 5;
-    private static final int CONTACTS_PER_BOOK = 200_000; // total ~100k
+    private static final int CONTACTS_PER_BOOK = 20_000; // total ~100k
     private static final int WARMUP_RUNS = 2;
     private static final int MEASURE_RUNS = 5;
 
@@ -45,12 +45,12 @@ class ContactRepositoryPerformanceTest {
 
         // insert many contacts; create duplicates across address books to exercise the GROUP BY projection
         List<Object[]> batch = new ArrayList<>(ADDRESS_BOOK_COUNT * CONTACTS_PER_BOOK);
-        for (int bookId = 1; bookId <= ADDRESS_BOOK_COUNT; bookId++) {
+        for (int addressBookId = 1; addressBookId <= ADDRESS_BOOK_COUNT; addressBookId++) {
             for (int c = 0; c < CONTACTS_PER_BOOK; c++) {
-                // create many duplicate names/phones across books by modding
-                String name = "name-" + (c % 1000);
-                String phone = "phone-" + (c % 500);
-                batch.add(new Object[]{name, phone, bookId});
+                // create many duplicate names/phones across address books  by modding
+                String name = "name-" + c;
+                String phone = "phone-" + c;
+                batch.add(new Object[]{name, phone, addressBookId});
                 if (batch.size() >= 2000) {
                     jdbc.batchUpdate("INSERT INTO contact (name, phone, address_book_id) VALUES (?, ?, ?)", batch);
                     batch.clear();

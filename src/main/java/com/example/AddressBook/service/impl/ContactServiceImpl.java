@@ -37,28 +37,28 @@ public class ContactServiceImpl implements ContactService {
     @Override
     @Transactional
     public ContactResponseWithId createContact(String addressBookName, ContactRequest request) {
-        AddressBook book = addressBookRepository.findByName(addressBookName)
+        AddressBook addressBook = addressBookRepository.findByName(addressBookName)
                 .orElseGet(() -> addressBookRepository.save(new AddressBook(addressBookName)));
 
-        // check duplicates within the same address book
-        boolean duplicate = book.getContacts().stream().anyMatch(c ->
-                request.getName().equalsIgnoreCase(c.getName()) && request.getPhone().equalsIgnoreCase(c.getPhone()));
+        // check for duplicate contact in the same address book. This is to provide a user friendly error message instead of relying on the database unique constraint violation
+        boolean duplicate =
+                contactRepository.existsByAddressBook_NameAndNameAndPhone(
+                        addressBookName,
+                        request.getName(),
+                        request.getPhone()
+                );
 
         if (duplicate) {
-            throw new DuplicateContactException("Contact already exists in the address book");
+            throw new DuplicateContactException(
+                    "Contact already exists in the address book"
+            );
         }
 
         Contact contact = new Contact(request.getName(), request.getPhone());
-        book.addContact(contact);
-        addressBookRepository.save(book);
-        // ensure pending inserts are flushed so the following query can find the persisted contact and its generated id
-        contactRepository.flush();
+        addressBook.addContact(contact);
+        contactRepository.save(contact);
 
-        // query the persisted contact by address book, name and phone to obtain the generated id
-        Contact saved = contactRepository.findByAddressBook_NameAndNameAndPhone(addressBookName, request.getName(), request.getPhone())
-                .orElse(contact);
-
-        return new ContactResponseWithId(saved.getId(), saved.getName(), saved.getPhone());
+        return new ContactResponseWithId(contact.getId(), contact.getName(), contact.getPhone());
     }
 
     @Override
