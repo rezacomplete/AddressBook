@@ -2,7 +2,7 @@ spring:
   application:
     name: AddressBook
   datasource:
-    url: jdbc:h2:file:./data/testdb
+    url: jdbc:h2:mem:addressbook;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:

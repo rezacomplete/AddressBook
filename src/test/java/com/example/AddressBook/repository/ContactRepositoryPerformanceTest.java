@@ -51,7 +51,9 @@ class ContactRepositoryPerformanceTest {
                 String name = "name-" + c;
                 String phone = "phone-" + c;
                 batch.add(new Object[]{name, phone, addressBookId});
+                System.out.println(name + " " + phone + " " + addressBookId);
                 if (batch.size() >= 2000) {
+
                     jdbc.batchUpdate("INSERT INTO contact (name, phone, address_book_id) VALUES (?, ?, ?)", batch);
                     batch.clear();
                 }
