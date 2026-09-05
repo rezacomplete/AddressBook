@@ -15,6 +15,7 @@ import com.example.AddressBook.service.ContactService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -120,7 +121,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Transactional(readOnly = true)
     public Page<ContactResponse> listUniqueContacts(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending().and(Sort.by("phone").ascending()));
         Page<UniqueContactProjection> uniques = contactRepository.findUniqueContacts(pageable); // calls Page<...>
         return uniques.map(p -> new ContactResponse(p.getName(), p.getPhone()));
     }

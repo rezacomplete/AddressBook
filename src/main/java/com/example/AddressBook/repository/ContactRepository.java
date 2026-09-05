@@ -25,6 +25,10 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
     @Query("SELECT DISTINCT c.name as name, c.phone as phone FROM Contact c")
     Page<UniqueContactProjection> findUniqueContacts(Pageable pageable);
 
+    @Query("SELECT DISTINCT c.name as name, c.phone as phone FROM Contact c where (c.name, c.phone) > (:name, :phone) ORDER BY c.name, c.phone limit :pageSize")
+    List<UniqueContactProjection> findUniqueContactsAfter(String name, String phone, int pageSize);
+
+
     // stream unique (name, phone) pairs for large datasets; keep transaction open while streaming
     @Transactional(readOnly = true)
     @Query("SELECT DISTINCT c.name as name, c.phone as phone FROM Contact c")
