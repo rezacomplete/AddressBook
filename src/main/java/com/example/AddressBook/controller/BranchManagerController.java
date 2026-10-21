@@ -5,24 +5,20 @@ import com.example.AddressBook.service.ContactService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 
 @RestController
 @RequestMapping("/api")
 public class BranchManagerController {
 
     private final ContactService contactService;
-    private final JdbcLockRegistry lockRegistry;
 
-    public BranchManagerController(ContactService contactService, JdbcLockRegistry lockRegistry) {
+    public BranchManagerController(ContactService contactService) {
         this.contactService = contactService;
-        this.lockRegistry = lockRegistry;
     }
 
     /**
@@ -32,8 +28,6 @@ public class BranchManagerController {
     public ResponseEntity<ContactResponseWithId> createContact(@PathVariable String addressBookName,
                                                          @Valid @RequestBody ContactRequest request,
                                                          UriComponentsBuilder uriBuilder) {
-        Lock lock = lockRegistry.obtain(addressBookName);
-        lock.lock();
 
         try {
             ContactResponseWithId created = contactService.createContact(addressBookName, request);
@@ -41,7 +35,6 @@ public class BranchManagerController {
             return ResponseEntity.created(location).body(created);
 
         } finally {
-            lock.unlock();
         }
     }
 
