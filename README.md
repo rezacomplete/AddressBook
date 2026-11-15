@@ -4,7 +4,7 @@ Simple Spring Boot application that manages address books and contacts.
 
 ## Prerequisites
 
-- Java 21 (configured in the project `pom.xml`)
+- Java 25 (configured in the project `pom.xml`)
 - Maven (or use the included Maven wrapper: `./mvnw`)
 
 ## Build and run
@@ -43,13 +43,11 @@ curl -i -X DELETE "http://localhost:8080/api/address-books/MyBook/contacts/1"
 curl -s "http://localhost:8080/api/address-books/MyBook/contacts?page=0&size=10" | jq
 ```
 
-
 ## List unique contacts
 
 ```bash
 curl -s "http://localhost:8080/api/contacts/unique?page=0&size=10" | jq
 ```
-
 
 ## Address book operations
 
@@ -60,7 +58,6 @@ curl -v -X POST "http://localhost:8080/api/address-books" \
   -H "Content-Type: application/json" \
   -d '{"name":"MyBook"}'
 ```
-
 
 ### Remove an address book if empty
 
@@ -73,7 +70,6 @@ curl -i -X DELETE "http://localhost:8080/api/address-books/MyBook"
 ```bash
 curl -s "http://localhost:8080/api/address-books" | jq
 ```
-
 
 ## Running tests
 
