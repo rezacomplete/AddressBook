@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for AddressBook
 # Stage 1: build the Spring Boot jar using the project's Maven wrapper when available
-FROM maven:3.9.4-eclipse-temurin-21 AS builder
+FROM maven:3.9.4-eclipse-temurin-25 AS builder
 
 WORKDIR /workspace
 
@@ -17,8 +17,8 @@ RUN ./mvnw -B -DskipTests package || mvn -B -DskipTests package
 # Copy the resulting jar to a predictable location
 RUN JAR_FILE=$(ls target/*.jar | grep -v "original" | head -n1) && cp "$JAR_FILE" /workspace/app.jar
 
-# Stage 2: small runtime image using Java 21
-FROM eclipse-temurin:21-jre
+# Stage 2: small runtime image using Java 25
+FROM eclipse-temurin:25-jre
 
 ARG JAVA_OPTS="-Xms256m -Xmx512m"
 ENV JAVA_OPTS=${JAVA_OPTS}
