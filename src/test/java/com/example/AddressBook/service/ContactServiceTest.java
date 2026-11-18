@@ -1,5 +1,21 @@
 package com.example.AddressBook.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.example.AddressBook.dto.ContactRequest;
 import com.example.AddressBook.dto.ContactResponse;
 import com.example.AddressBook.model.AddressBook;
@@ -8,17 +24,6 @@ import com.example.AddressBook.repository.AddressBookRepository;
 import com.example.AddressBook.repository.ContactRepository;
 import com.example.AddressBook.repository.UniqueContactProjection;
 import com.example.AddressBook.service.impl.ContactServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
 
 public class ContactServiceTest {
 
