@@ -84,11 +84,11 @@ curl -s "http://localhost:8080/api/address-books" | jq
 Build the Docker image:
 
 ```bash
-docker build -t addressbook:local .
+./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=address-book:local
 ```
 
 Run the image:
 
 ```bash
-docker run --rm -p 8080:8080 addressbook:local
+docker run --rm -p 8080:8080 address-book:local
 ```
