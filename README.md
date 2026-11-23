@@ -29,6 +29,16 @@ To build the project without running tests, use the Maven wrapper.
 
 The app starts by default on port 8080.
 
+## Get the greeting
+
+With the application running, send a `GET` request to `/api/` (including the trailing slash).
+
+```bash
+curl "http://localhost:8080/api/"
+```
+
+The endpoint returns the configured greeting as plain text.
+
 ## The createContact endpoint
 
 ```bash

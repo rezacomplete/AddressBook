@@ -14,3 +14,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+
+polar:
+  greeting: Welcome to the app from the default configuration (application.yml)
