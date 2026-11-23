@@ -15,6 +15,12 @@ Simple Spring Boot application that manages address books and contacts.
 ./mvnw clean package
 ```
 
+To build the project without running tests, use the Maven wrapper.
+
+```sh
+./mvnw clean package -DskipTests
+```
+
 - Run the application:
 
 ```bash
