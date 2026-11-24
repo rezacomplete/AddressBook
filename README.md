@@ -1,10 +1,10 @@
 # AddressBook
 
-Simple Spring Boot application that manages address books and contacts.
+Simple Spring Boot application that manages books.
 
 ## Prerequisites
 
-- Java 25 (configured in the project `pom.xml`)
+- Java 21 (configured in the project `pom.xml`)
 - Maven (or use the included Maven wrapper: `./mvnw`)
 
 ## Build and run
@@ -29,63 +29,15 @@ To build the project without running tests, use the Maven wrapper.
 
 The app starts by default on port 8080.
 
-## Get the greeting
-
-With the application running, send a `GET` request to `/api/` (including the trailing slash).
+## Add a book
 
 ```bash
-curl "http://localhost:8080/api/"
-```
-
-The endpoint returns the configured greeting as plain text.
-
-## The createContact endpoint
-
-```bash
-curl -v -X POST "http://localhost:8080/api/address-books/MyBook/contacts" \
+curl -i -X POST "http://localhost:8080/books" \
   -H "Content-Type: application/json" \
-  -d '{"name":"Alice","phone":"+1234567890"}'
+  -d '{"isbn":"9780140328721","title":"Matilda","author":"Roald Dahl","price":12.99}'
 ```
 
-## Remove a contact by ID
-
-```bash
-curl -i -X DELETE "http://localhost:8080/api/address-books/MyBook/contacts/1"
-```
-
-## List contacts
-
-```bash
-curl -s "http://localhost:8080/api/address-books/MyBook/contacts?page=0&size=10" | jq
-```
-
-## List unique contacts
-
-```bash
-curl -s "http://localhost:8080/api/contacts/unique?page=0&size=10" | jq
-```
-
-## Address book operations
-
-### Create an address book
-
-```bash
-curl -v -X POST "http://localhost:8080/api/address-books" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"MyBook"}'
-```
-
-### Remove an address book if empty
-
-```bash
-curl -i -X DELETE "http://localhost:8080/api/address-books/MyBook"
-```
-
-### List address books
-
-```bash
-curl -s "http://localhost:8080/api/address-books" | jq
-```
+The ISBN must contain 10 or 13 digits, the title and author must be nonblank, and the price must be greater than zero. A successful request returns `201 Created` and the saved book as JSON.
 
 ## Running tests
 
