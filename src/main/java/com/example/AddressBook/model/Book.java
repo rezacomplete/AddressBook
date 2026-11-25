@@ -1,13 +1,17 @@
 package com.example.AddressBook.model;
 
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
+
+import java.time.Instant;
 
 public record Book (
 
@@ -28,11 +32,11 @@ public record Book (
         @Positive(message = "The book price must be greater than zero.")
         Double price,
 
-        // @CreatedDate
-        // Instant createdDate,
+        @CreatedDate
+        Instant createdDate,
 
-        // @LastModifiedDate
-        // Instant lastModifiedDate,
+        @LastModifiedDate
+        Instant lastModifiedDate,
 
         @Version
         int version
@@ -40,7 +44,7 @@ public record Book (
 ){
 
         public static Book of(String isbn, String title, String author, Double price) {
-                return new Book(null, isbn, title, author, price, 0);
+                return new Book(null, isbn, title, author, price, null, null, 0);
         }
 
 }

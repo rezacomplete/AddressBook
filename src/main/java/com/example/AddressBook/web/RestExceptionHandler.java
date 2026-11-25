@@ -1,18 +1,20 @@
 package com.example.AddressBook.web;
 
+import com.example.AddressBook.exception.BookAlreadyExistsException;
 import com.example.AddressBook.exception.DuplicateContactException;
 import com.example.AddressBook.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
@@ -40,5 +42,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         body.put("message", "An unexpected error occurred");
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(BookAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+    String bookAlreadyExistsHandler(BookAlreadyExistsException ex) {
+        return ex.getMessage();
     }
 }

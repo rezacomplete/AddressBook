@@ -32,9 +32,9 @@ The app starts by default on port 8080.
 ## Add a book
 
 ```bash
-curl -i -X POST "http://localhost:8080/books" \
-  -H "Content-Type: application/json" \
-  -d '{"isbn":"9780140328721","title":"Matilda","author":"Roald Dahl","price":12.99}'
+curl -i -X POST 'http://localhost:8080/books' \
+  -H 'Content-Type: application/json' \
+  -d '{"isbn":"9780140328721","title":"Matilda","author":"Roald Dahl","price":12.99,"version":0}'
 ```
 
 The ISBN must contain 10 or 13 digits, the title and author must be nonblank, and the price must be greater than zero. A successful request returns `201 Created` and the saved book as JSON.
