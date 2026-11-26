@@ -4,28 +4,31 @@ Simple Spring Boot application that manages books.
 
 ## Prerequisites
 
-- Java 21 (configured in the project `pom.xml`)
-- Maven (or use the included Maven wrapper: `./mvnw`)
+- Java 21
+- Docker for the PostgreSQL integration tests and image builds
+- PostgreSQL for running the application locally. The default connection is `localhost:5432/polardb_catalog`.
 
 ## Build and run
 
-- Build the project:
+Build the executable JAR and run the tests with the included Gradle wrapper.
 
 ```bash
-./mvnw clean package
+./gradlew clean build
 ```
 
-To build the project without running tests, use the Maven wrapper.
+Build just the executable JAR under `build/libs/`.
 
 ```sh
-./mvnw clean package -DskipTests
+./gradlew clean bootJar
 ```
 
-- Run the application:
+Run the application from Gradle. `bootRun` activates the `testdata` profile, which replaces the books in the configured database with sample data.
 
 ```bash
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
+
+To run the packaged application, use `java -jar build/libs/AddressBook-0.0.1-SNAPSHOT.jar`.
 
 The app starts by default on port 8080.
 
@@ -41,18 +44,18 @@ The ISBN must contain 10 or 13 digits, the title and author must be nonblank, an
 
 ## Running tests
 
-- Run all tests:
+Run all tests with Docker running.
 
 ```bash
-./mvnw test
+./gradlew test
 ```
 
 ## Deployment (Docker-only)
 
-Build the Docker image:
+Build the Docker image.
 
 ```bash
-./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=address-book:local
+./gradlew bootBuildImage --imageName=address-book:local
 ```
 
 Run the image:

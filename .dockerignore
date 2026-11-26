@@ -1,5 +1,7 @@
 # Ignore build outputs
 target/
+build/
+.gradle/
 
 # VCS and IDE
 .git
@@ -15,6 +17,3 @@ target/
 
 # Node
 node_modules/
-
-# Keep mvnw and .mvn so the builder can use the Maven wrapper
-# (do not add mvnw or .mvn to this file)
